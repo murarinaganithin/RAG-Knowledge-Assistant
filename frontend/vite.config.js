@@ -1,10 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vitejs.dev/config/
+// Base path configured for GitHub Pages repo: /RAG-Knowledge-Assistant/
 export default defineConfig({
   plugins: [react()],
-  base: './',
+  base: '/RAG-Knowledge-Assistant/',
   server: {
     port: 5173,
     proxy: {
