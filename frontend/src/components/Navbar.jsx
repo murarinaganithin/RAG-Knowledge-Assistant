@@ -9,7 +9,7 @@ function GithubIcon({ className = "w-4 h-4" }) {
   );
 }
 
-export default function Navbar({ activeTab, setActiveTab, backendStatus }) {
+export default function Navbar({ activeTab, setActiveTab }) {
   const tabs = [
     { id: 'chat', label: 'Q&A Assistant', icon: MessageSquare },
     { id: 'documents', label: 'Knowledge Base', icon: Database },
@@ -18,29 +18,32 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus }) {
   ];
 
   return (
-    <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+    <header className="border-b border-slate-800 bg-slate-950 sticky top-0 z-30 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo & Project Title */}
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-400 p-0.5 shadow-lg shadow-indigo-500/20">
+        
+        {/* Top Header Row */}
+        <div className="flex flex-wrap items-center justify-between gap-y-2 py-3">
+          
+          {/* Logo & Title */}
+          <div className="flex items-center space-x-3 shrink-0">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-400 p-0.5 shadow-md shadow-indigo-500/20 shrink-0">
               <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-indigo-400" />
+                <BookOpen className="w-4 h-4 text-indigo-400" />
               </div>
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h1 className="font-bold text-lg text-white tracking-tight">RAG Knowledge Assistant</h1>
-                <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                <h1 className="font-bold text-base sm:text-lg text-white tracking-tight">RAG Knowledge Assistant</h1>
+                <span className="hidden xs:inline-block text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                   LangChain v0.3
                 </span>
               </div>
-              <p className="text-xs text-slate-400 hidden sm:block">Document-Grounded Q&A • Vector Search • Evaluated RAG</p>
+              <p className="text-[11px] text-slate-400 hidden sm:block">Document-Grounded Q&A • Vector Search • Evaluated RAG</p>
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <nav className="flex space-x-1 sm:space-x-2">
+          {/* Desktop & Tablet Navigation */}
+          <nav className="hidden md:flex items-center space-x-1.5">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -48,17 +51,17 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus }) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                  className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     isActive
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
                   <span>{tab.label}</span>
                   {tab.badge && (
-                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
-                      isActive ? 'bg-indigo-900/80 text-emerald-300' : 'bg-emerald-500/20 text-emerald-400'
+                    <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
+                      isActive ? 'bg-indigo-900/90 text-emerald-300' : 'bg-emerald-500/20 text-emerald-400'
                     }`}>
                       {tab.badge}
                     </span>
@@ -68,10 +71,10 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus }) {
             })}
           </nav>
 
-          {/* Status & Links */}
-          <div className="flex items-center space-x-3">
-            <div className="hidden md:flex items-center space-x-2 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          {/* Right Status Badges & GitHub Link */}
+          <div className="flex items-center space-x-2.5 shrink-0">
+            <div className="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-[11px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <span className="text-slate-400">Avg Latency:</span>
               <span className="font-semibold text-emerald-400 font-mono">1.4s</span>
             </div>
@@ -80,13 +83,42 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus }) {
               href="https://github.com/murarinaganithin/RAG-Knowledge-Assistant"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-medium transition-colors"
+              className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-medium transition-colors shrink-0"
             >
-              <GithubIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">GitHub</span>
+              <GithubIcon className="w-3.5 h-3.5" />
+              <span>GitHub</span>
             </a>
           </div>
+
         </div>
+
+        {/* Mobile Sub-Navigation Bar (Horizontal Scrollable Tabs) */}
+        <div className="flex md:hidden overflow-x-auto py-2 border-t border-slate-900 gap-2 no-scrollbar">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium shrink-0 transition-all ${
+                  isActive
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 border border-slate-800'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5 shrink-0" />
+                <span>{tab.label}</span>
+                {tab.badge && (
+                  <span className="text-[9px] font-bold px-1 rounded-full bg-emerald-500/20 text-emerald-400">
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
       </div>
     </header>
   );
