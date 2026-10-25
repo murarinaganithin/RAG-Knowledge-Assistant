@@ -1,0 +1,26 @@
+NIST SP 800-207 ZERO TRUST ENTERPRISE ARCHITECTURE STANDARD
+Operational Security Directive: SEC-ZTA-2026
+
+1. PHILOSOPHICAL FOUNDATIONS OF ZERO TRUST
+Traditional perimeter-based network security ('castle-and-moat') assumes that actors inside the corporate intranet are inherently trusted. The Zero Trust Architecture (ZTA) fundamentally inverts this model:
+- 'Never Trust, Always Verify': Explicit verification is required for every access request, irrespective of whether the request originates from within the internal subnet or the public internet.
+- Assume Breach: Architecture assumes adversaries exist inside internal network segments and assets may already be compromised.
+- Least Privilege Access: Users, microservices, and devices receive only the absolute minimum permissions necessary to execute immediate job duties (Just-in-Time, Just-Enough-Access).
+
+2. CORE COMPONENTS OF ZERO TRUST ARCHITECTURE
+A standard NIST SP 800-207 deployment consists of:
+2.1 Policy Decision Point (PDP)
+The PDP evaluates contextual signals (device posture, user behavioral baseline, geographic IP velocity, time of day, MFA status) and issues authorization decisions. The PDP consists of:
+- Policy Engine (PE): Responsible for the ultimate access decision utilizing enterprise security policies.
+- Policy Administrator (PA): Communicates with the Policy Enforcement Point to establish or terminate authenticated communication channels.
+2.2 Policy Enforcement Point (PEP)
+The PEP sits directly in the data plane between the client subject and the protected enterprise resource. It intercepts, decrypts, inspects, and permits or denies traffic based strictly on instructions from the PDP. All connections utilize Mutual TLS (mTLS) with ephemeral X.509 certificates rotated every 24 hours.
+
+3. MICROSEGMENTATION & SOFTWARE-DEFINED PERIMETER (SDP)
+Networks are partitioned into discrete granular micro-perimeters using overlay networks (e.g., WireGuard, Cilium eBPF, or AWS Security Groups). Lateral movement is eliminated by denying all default east-west traffic between internal servers. A database server will accept inbound traffic only from explicitly authorized application containers on designated TCP ports.
+
+4. IDENTITY AND ACCESS MANAGEMENT (IAM) & PHISHING-RESISTANT MFA
+Passwords alone are strictly prohibited. Identity verification mandates FIDO2/WebAuthn hardware tokens (e.g., YubiKey) or biometric passkeys providing cryptographic proof against adversary-in-the-middle (AiTM) phishing attacks. Session tokens expire after 8 hours of inactivity and enforce continuous re-authentication when anomalous risk telemetry (such as impossible travel velocity or disabled endpoint EDR) is detected.
+
+5. SIEM AND AUTOMATED SOAR RESPONSE
+Security events are aggregated in real-time into centralized Security Information and Event Management (SIEM) systems. Automated Security Orchestration, Automation, and Response (SOAR) playbooks automatically isolate compromised endpoints, revoke active OAuth refresh tokens, and snapshot memory within 45 seconds of detecting ransomware indicators of compromise (IoCs).

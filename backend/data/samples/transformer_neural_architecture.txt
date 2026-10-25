@@ -1,0 +1,39 @@
+ATTENTION IS ALL YOU NEED — SYSTEM SPECIFICATION & ARCHITECTURE
+Published: Computer Vision and Pattern Recognition / NeurIPS
+Lead Authors: Vaswani et al.
+
+1. EXECUTIVE SUMMARY & MOTIVATION
+The Transformer is the first sequence transduction model relying entirely on self-attention to compute representations of its input and output without using sequence-aligned RNNs or convolution. Recurrent models typically factor computation along the symbol positions of the input and output sequences, generating a sequence of hidden states h_t as a function of the previous hidden state h_{t-1} and the input for position t. This inherently sequential nature precludes parallelization within training examples, which becomes critical at longer sequence lengths, as memory constraints limit batching across examples.
+
+2. MODEL ARCHITECTURE & MULTI-HEAD ATTENTION
+The Transformer follows an encoder-decoder architecture using stacked self-attention and point-wise, fully connected layers for both the encoder and decoder.
+
+2.1 Encoder Stack
+The encoder is composed of a stack of N = 6 identical layers. Each layer has two sub-layers:
+1. Multi-Head Self-Attention Mechanism
+2. Position-wise Fully Connected Feed-Forward Network
+We employ a residual connection around each of the two sub-layers, followed by layer normalization. That is, the output of each sub-layer is LayerNorm(x + Sublayer(x)), where Sublayer(x) is the function implemented by the sub-layer itself. To facilitate these residual connections, all sub-layers in the model, as well as the embedding layers, produce outputs of dimension d_model = 512.
+
+2.2 Decoder Stack
+The decoder is also composed of a stack of N = 6 identical layers. In addition to the two sub-layers in each encoder layer, the decoder inserts a third sub-layer, which performs multi-head attention over the output of the encoder stack. We also modify the self-attention sub-layer in the decoder stack to prevent positions from attending to subsequent positions. This masking, combined with the fact that output embeddings are offset by one position, ensures that the predictions for position i can depend only on the known outputs at positions less than i.
+
+2.3 Scaled Dot-Product Attention
+An attention function can be described as mapping a query and a set of key-value pairs to an output. The queries and keys are of dimension d_k, and values of dimension d_v. We compute the dot products of the query with all keys, divide each by sqrt(d_k), and apply a softmax function to obtain the weights on the values.
+Attention(Q, K, V) = softmax( (Q * K^T) / sqrt(d_k) ) * V
+We use the scaling factor 1 / sqrt(d_k) because for large values of d_k, the dot products grow large in magnitude, pushing the softmax function into regions that have extremely small gradients.
+
+2.4 Multi-Head Attention Mechanism
+Instead of performing a single attention function with d_model-dimensional keys, values, and queries, we found it beneficial to linearly project the queries, keys, and values h times with different, learned linear projections to d_k, d_k, and d_v dimensions, respectively. In our work we employ h = 8 parallel attention layers, or heads. For each of these we use d_k = d_v = d_model / h = 64. Due to the reduced dimension of each head, the total computational cost is similar to that of single-head attention with full dimensionality.
+MultiHead(Q, K, V) = Concat(head_1, ..., head_h) * W_O
+where head_i = Attention(Q * W_i^Q, K * W_i^K, V * W_i^V)
+
+3. POSITIONAL ENCODINGS
+Since our model contains no recurrence and no convolution, in order for the model to make use of the order of the sequence, we must inject some information about the relative or absolute position of the tokens in the sequence. To this end, we add 'positional encodings' to the input embeddings at the bottoms of the encoder and decoder stacks. The positional encodings have the same dimension d_model as the embeddings, so that the two can be summed. In this work, we use sine and cosine functions of different frequencies:
+PE(pos, 2i) = sin(pos / 10000^(2i / d_model))
+PE(pos, 2i + 1) = cos(pos / 10000^(2i / d_model))
+where pos is the position and i is the dimension.
+
+4. TRAINING REGIME AND HYPERPARAMETERS
+The base model was trained on 8 NVIDIA P100 GPUs for 100,000 steps (12 hours). We used the Adam optimizer with beta_1 = 0.9, beta_2 = 0.98, and epsilon = 10^-9. We varied the learning rate over the course of training according to the formula:
+lrate = d_model^(-0.5) * min(step_num^(-0.5), step_num * warmup_steps^(-1.5))
+with warmup_steps = 4000. We applied dropout to the sums of embeddings and positional encodings with P_drop = 0.1. On the WMT 2014 English-to-German translation task, the Transformer big model achieved a BLEU score of 28.4, outperforming the previous state of the art by more than 2.0 BLEU.

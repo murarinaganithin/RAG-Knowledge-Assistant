@@ -1,0 +1,30 @@
+CLOUD-NATIVE ENTERPRISE MICROSERVICES ARCHITECTURE GUIDE
+Standard Operating Architecture: Production Grade v4.2
+
+1. CORE TENETS OF CLOUD-NATIVE ARCHITECTURE
+Modern enterprise platforms rely on containerized microservices orchestrated via Kubernetes (EKS/GKE). Services are autonomous, stateless, and communicate via gRPC for synchronous internal communication and Apache Kafka for asynchronous event-driven streaming.
+
+2. SERVICE RESILIENCE & CIRCUIT BREAKER SPECIFICATION
+Distributed systems must be designed for partial failure. Cascading failures are mitigated using the Circuit Breaker pattern (implemented via Resilience4j or Envoy proxy).
+2.1 State Transitions
+The Circuit Breaker operates in three states:
+- CLOSED: Requests pass through normally. Failure rate is tracked within a rolling time window of 60 seconds.
+- OPEN: When the failure rate exceeds 50% over a minimum sample size of 20 requests, the breaker trips to OPEN. All incoming requests immediately fail-fast with HTTP 503 (Service Unavailable) or trigger fallback degraded logic without invoking the downstream service.
+- HALF-OPEN: After a sleep window of 30 seconds, the breaker enters HALF-OPEN state, permitting 5 trial requests. If all 5 succeed, the breaker resets to CLOSED. If any trial fails, it reverts to OPEN for an additional 60 seconds.
+
+2.2 Retry Backoff with Jitter
+Automated retries must apply exponential backoff with full jitter to prevent thundering herd spikes:
+Wait_Interval = Min(Max_Backoff, Base_Backoff * 2^Attempt) + Uniform_Random(0, Jitter_Max)
+Default configuration: Base_Backoff = 200ms, Max_Backoff = 3000ms, Max_Retries = 3.
+
+3. DATA CONSISTENCY: SAGA PATTERN
+Because microservices maintain private databases (Database-per-Service pattern), distributed 2-Phase Commit (2PC) is rejected due to locking bottlenecks. Instead, long-running business transactions use Orchestrated Sagas.
+- Saga Orchestrator: An event coordinator (built on Temporal or Kafka) emits command events.
+- Compensating Transactions: If order payment succeeds but inventory reservation fails, the orchestrator issues a Compensating Transaction (e.g., RefundPaymentCommand) to ensure eventual consistency.
+- Idempotency Keys: All endpoints consuming saga commands require a UUID idempotency key cached in Redis for 24 hours to prevent duplicate processing.
+
+4. OBSERVABILITY & DISTRIBUTED TRACING
+Full observability is mandated across three telemetry pillars:
+- Metrics: Prometheus scrapes OpenMetrics endpoints every 15s. Key Golden Signals: Latency (p50, p95, p99), Traffic (RPS), Errors (5xx rate), and Saturation (CPU/Memory).
+- Tracing: Distributed context propagation via W3C TraceContext headers (traceparent and tracestate) instrumented using OpenTelemetry SDKs, sent to Jaeger/Tempo.
+- Logging: Structured JSON logs including service_name, environment, trace_id, and span_id.

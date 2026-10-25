@@ -1,0 +1,36 @@
+INVESTIGATIONAL BIOLOGIC CLINICAL PROTOCOL: RX-849
+Protocol Identifier: MED-RX849-PH3-2026
+Sponsor: Global Biopharma Research Consortium
+
+1. OBJECTIVES AND HYPOTHESIS
+The primary objective of this randomized, double-blind, placebo-controlled Phase III study is to evaluate the therapeutic efficacy and safety profile of RX-849 (a recombinant human monoclonal antibody targeting Interleukin-33) in adult patients with moderate-to-severe uncontrolled pulmonary disease.
+The clinical hypothesis states that subcutaneous administration of RX-849 (300 mg every 2 weeks) will achieve a statistically significant reduction in annualized exacerbation rates compared to placebo over a 52-week evaluation period.
+
+2. PATIENT ELIGIBILITY CRITERIA
+2.1 Inclusion Criteria
+- Age between 18 and 75 years at time of screening consent.
+- Documented clinical diagnosis of persistent pulmonary inflammation for >= 12 months.
+- Baseline Pre-bronchodilator FEV1 (Forced Expiratory Volume in 1 second) between 40% and 80% of predicted normal value.
+- Documented history of >= 2 documented acute exacerbations requiring systemic corticosteroid bursts within the prior 12 months.
+2.2 Exclusion Criteria
+- Concurrent diagnosis of active tuberculosis, cystic fibrosis, or end-stage malignancy.
+- Significant cardiovascular instability (NYHA Class III or IV congestive heart failure).
+- Receipt of any investigational biologic within 6 months or 5 half-lives prior to Day 1 baseline.
+- Pregnancy, lactation, or unwillingness to maintain dual barrier contraception.
+
+3. DOSING, ADMINISTRATION, AND PHARMACOKINETICS
+Patients are randomized 1:1 using stratified block randomization:
+- Arm A (Active): RX-849 300 mg prefilled autoinjector administered subcutaneously every 14 days (Q2W).
+- Arm B (Control): Matching volume-identical saline placebo autoinjector administered subcutaneously Q2W.
+Pharmacokinetic parameters: Peak serum concentration (C_max) is achieved at median T_max of 72 hours post-dose. The elimination terminal half-life (t_1/2) is 24.3 days, exhibiting non-linear target-mediated drug disposition at sub-therapeutic concentrations.
+
+4. ENDPOINTS AND STATISTICAL ANALYSIS PLAN
+4.1 Primary Endpoint
+The primary endpoint is the Annualized Exacerbation Rate (AER) over 52 weeks, analyzed via negative binomial regression models with log-link function, adjusted for baseline eosinophil counts and geographic region. Alpha level is set at two-sided 0.05.
+4.2 Secondary Endpoints
+- Mean change from baseline in pre-bronchodilator FEV1 at Week 24 and Week 52.
+- Proportion of patients achieving >= 0.5 point improvement in SGRQ (St. George's Respiratory Questionnaire) quality-of-life score.
+- Time to first severe exacerbation leading to hospitalization.
+
+5. SAFETY MONITORING AND ADVERSE EVENT REPORTING
+An independent Data and Safety Monitoring Board (DSMB) conducts quarterly unblinded safety reviews. Serious Adverse Events (SAEs) must be reported to the study sponsor and regulatory authorities within 24 hours of site discovery. Immediate treatment cessation is mandated for any Grade 4 anaphylactic reaction or drug-induced liver injury (ALT/AST > 5x Upper Limit of Normal with bilirubin > 2x ULN).

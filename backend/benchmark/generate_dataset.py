@@ -1,0 +1,829 @@
+import json
+from pathlib import Path
+
+DATASET_FILE = Path(__file__).resolve().parent / "dataset_100.json"
+
+TEST_QUESTIONS = [
+    # --- DOMAIN 1: Transformer Architecture (Questions 1 to 20) ---
+    {
+        "id": 1,
+        "category": "Transformer Architecture",
+        "question": "What is the primary motivation for replacing RNNs with self-attention in the Transformer?",
+        "ground_truth_concepts": ["sequential nature", "precludes parallelization", "longer sequence lengths", "batching across examples"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 2,
+        "category": "Transformer Architecture",
+        "question": "How many identical layers make up the Transformer encoder stack?",
+        "ground_truth_concepts": ["N = 6", "identical layers", "encoder stack"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 3,
+        "category": "Transformer Architecture",
+        "question": "What are the two sub-layers present in each encoder layer?",
+        "ground_truth_concepts": ["multi-head self-attention", "feed-forward network", "position-wise"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 4,
+        "category": "Transformer Architecture",
+        "question": "What is the output dimensionality d_model used across all sub-layers and embeddings?",
+        "ground_truth_concepts": ["d_model = 512", "produce outputs of dimension"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 5,
+        "category": "Transformer Architecture",
+        "question": "Why is masking applied to the self-attention sub-layer in the decoder stack?",
+        "ground_truth_concepts": ["prevent positions from attending to subsequent positions", "predictions for position i", "less than i"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 6,
+        "category": "Transformer Architecture",
+        "question": "What is the mathematical formula for Scaled Dot-Product Attention?",
+        "ground_truth_concepts": ["softmax", "(Q * K^T) / sqrt(d_k)", "sqrt(d_k)"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 7,
+        "category": "Transformer Architecture",
+        "question": "Why divide the query-key dot products by sqrt(d_k)?",
+        "ground_truth_concepts": ["large values of d_k", "grow large in magnitude", "extremely small gradients", "scaling factor"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 8,
+        "category": "Transformer Architecture",
+        "question": "How many parallel attention heads h are employed in the Transformer model?",
+        "ground_truth_concepts": ["h = 8", "parallel attention layers", "heads"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 9,
+        "category": "Transformer Architecture",
+        "question": "What is the dimension of keys and values per attention head?",
+        "ground_truth_concepts": ["d_k = d_v = 64", "d_model / h = 64"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 10,
+        "category": "Transformer Architecture",
+        "question": "How does the model inject sequence order without using recurrence?",
+        "ground_truth_concepts": ["positional encodings", "sine and cosine", "order of the sequence"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 11,
+        "category": "Transformer Architecture",
+        "question": "What mathematical functions are used to generate positional encodings?",
+        "ground_truth_concepts": ["sin", "cos", "10000^(2i / d_model)"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 12,
+        "category": "Transformer Architecture",
+        "question": "What optimizer and hyperparameters were used during Transformer training?",
+        "ground_truth_concepts": ["Adam optimizer", "beta_1 = 0.9", "beta_2 = 0.98", "epsilon = 10^-9"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 13,
+        "category": "Transformer Architecture",
+        "question": "How many warmup steps were scheduled for the learning rate?",
+        "ground_truth_concepts": ["warmup_steps = 4000", "min(step_num^(-0.5)"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 14,
+        "category": "Transformer Architecture",
+        "question": "What hardware and training duration were utilized for the base Transformer?",
+        "ground_truth_concepts": ["8 NVIDIA P100 GPUs", "100,000 steps", "12 hours"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 15,
+        "category": "Transformer Architecture",
+        "question": "What BLEU score was achieved on the WMT 2014 English-to-German translation task?",
+        "ground_truth_concepts": ["BLEU score of 28.4", "English-to-German", "outperforming"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 16,
+        "category": "Transformer Architecture",
+        "question": "What dropout probability was applied to the embeddings and positional encodings?",
+        "ground_truth_concepts": ["dropout", "P_drop = 0.1"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 17,
+        "category": "Transformer Architecture",
+        "question": "How are residual connections applied around sub-layers?",
+        "ground_truth_concepts": ["LayerNorm(x + Sublayer(x))", "layer normalization"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 18,
+        "category": "Transformer Architecture",
+        "question": "What is the third sub-layer inserted into the Transformer decoder stack?",
+        "ground_truth_concepts": ["multi-head attention over the output of the encoder stack", "third sub-layer"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 19,
+        "category": "Transformer Architecture",
+        "question": "Who are the lead authors credited on Attention Is All You Need?",
+        "ground_truth_concepts": ["Vaswani et al.", "Lead Authors"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 20,
+        "category": "Transformer Architecture",
+        "question": "What is the equation for combining multiple attention heads?",
+        "ground_truth_concepts": ["MultiHead(Q, K, V) = Concat(head_1, ..., head_h) * W_O", "W_O"],
+        "expected_document": "transformer_neural_architecture.txt",
+        "is_answerable": True
+    },
+
+    # --- DOMAIN 2: Cloud-Native Microservices (Questions 21 to 40) ---
+    {
+        "id": 21,
+        "category": "Cloud-Native Microservices",
+        "question": "What protocols are recommended for synchronous internal microservice communication vs asynchronous events?",
+        "ground_truth_concepts": ["gRPC for synchronous", "Apache Kafka for asynchronous"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 22,
+        "category": "Cloud-Native Microservices",
+        "question": "What are the three operational states of a Circuit Breaker?",
+        "ground_truth_concepts": ["CLOSED", "OPEN", "HALF-OPEN"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 23,
+        "category": "Cloud-Native Microservices",
+        "question": "What failure rate trips the circuit breaker from CLOSED to OPEN?",
+        "ground_truth_concepts": ["exceeds 50%", "minimum sample size of 20 requests", "rolling time window of 60 seconds"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 24,
+        "category": "Cloud-Native Microservices",
+        "question": "What HTTP status code is returned when requests fail-fast in the OPEN state?",
+        "ground_truth_concepts": ["HTTP 503", "Service Unavailable", "fail-fast"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 25,
+        "category": "Cloud-Native Microservices",
+        "question": "How long is the sleep window before the Circuit Breaker tests the HALF-OPEN state?",
+        "ground_truth_concepts": ["sleep window of 30 seconds", "HALF-OPEN", "5 trial requests"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 26,
+        "category": "Cloud-Native Microservices",
+        "question": "Why is exponential backoff paired with full jitter during automated retries?",
+        "ground_truth_concepts": ["prevent thundering herd", "exponential backoff", "Uniform_Random", "Jitter_Max"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 27,
+        "category": "Cloud-Native Microservices",
+        "question": "What are the default base backoff, max backoff, and max retries parameters?",
+        "ground_truth_concepts": ["Base_Backoff = 200ms", "Max_Backoff = 3000ms", "Max_Retries = 3"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 28,
+        "category": "Cloud-Native Microservices",
+        "question": "Why is traditional 2-Phase Commit (2PC) rejected in distributed microservices?",
+        "ground_truth_concepts": ["locking bottlenecks", "Database-per-Service", "rejected"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 29,
+        "category": "Cloud-Native Microservices",
+        "question": "How does the Saga pattern handle business transaction rollback?",
+        "ground_truth_concepts": ["Compensating Transaction", "RefundPaymentCommand", "eventual consistency"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 30,
+        "category": "Cloud-Native Microservices",
+        "question": "How is idempotency guaranteed when processing saga commands?",
+        "ground_truth_concepts": ["UUID idempotency key", "cached in Redis for 24 hours"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 31,
+        "category": "Cloud-Native Microservices",
+        "question": "What are the four Golden Signals tracked in cloud-native monitoring?",
+        "ground_truth_concepts": ["Latency", "Traffic", "Errors", "Saturation"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 32,
+        "category": "Cloud-Native Microservices",
+        "question": "How frequently does Prometheus scrape OpenMetrics endpoints?",
+        "ground_truth_concepts": ["every 15s", "Prometheus scrapes", "OpenMetrics"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 33,
+        "category": "Cloud-Native Microservices",
+        "question": "What headers are used for distributed context propagation in OpenTelemetry?",
+        "ground_truth_concepts": ["W3C TraceContext", "traceparent", "tracestate"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 34,
+        "category": "Cloud-Native Microservices",
+        "question": "What tools are mentioned for distributed trace collection?",
+        "ground_truth_concepts": ["Jaeger", "Tempo", "OpenTelemetry SDKs"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 35,
+        "category": "Cloud-Native Microservices",
+        "question": "What fields must be included in structured JSON logs?",
+        "ground_truth_concepts": ["service_name", "environment", "trace_id", "span_id"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 36,
+        "category": "Cloud-Native Microservices",
+        "question": "What frameworks are cited for implementing circuit breakers?",
+        "ground_truth_concepts": ["Resilience4j", "Envoy proxy"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 37,
+        "category": "Cloud-Native Microservices",
+        "question": "What Kubernetes platforms orchestrate the containerized services?",
+        "ground_truth_concepts": ["Kubernetes", "EKS", "GKE"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 38,
+        "category": "Cloud-Native Microservices",
+        "question": "What coordinators can drive the Saga Orchestrator?",
+        "ground_truth_concepts": ["Temporal", "Kafka", "event coordinator"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 39,
+        "category": "Cloud-Native Microservices",
+        "question": "What condition allows the circuit breaker to reset from HALF-OPEN to CLOSED?",
+        "ground_truth_concepts": ["all 5 succeed", "resets to CLOSED"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 40,
+        "category": "Cloud-Native Microservices",
+        "question": "What happens if a trial request fails during HALF-OPEN?",
+        "ground_truth_concepts": ["reverts to OPEN", "additional 60 seconds"],
+        "expected_document": "cloud_native_microservices.txt",
+        "is_answerable": True
+    },
+
+    # --- DOMAIN 3: Clinical Drug Trial Protocol (Questions 41 to 60) ---
+    {
+        "id": 41,
+        "category": "Clinical Trial Protocol",
+        "question": "What is the biological target of investigational antibody RX-849?",
+        "ground_truth_concepts": ["monoclonal antibody", "Interleukin-33", "recombinant human"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 42,
+        "category": "Clinical Trial Protocol",
+        "question": "What is the primary objective and evaluation timeframe of study MED-RX849-PH3-2026?",
+        "ground_truth_concepts": ["efficacy and safety", "annualized exacerbation rates", "52-week evaluation period"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 43,
+        "category": "Clinical Trial Protocol",
+        "question": "What is the dosage and dosing frequency for Arm A in the RX-849 trial?",
+        "ground_truth_concepts": ["300 mg", "subcutaneously", "every 14 days", "Q2W"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 44,
+        "category": "Clinical Trial Protocol",
+        "question": "What is the required patient age range for study inclusion?",
+        "ground_truth_concepts": ["18 and 75 years", "screening consent"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 45,
+        "category": "Clinical Trial Protocol",
+        "question": "What baseline FEV1 percentage of predicted normal value is required for enrollment?",
+        "ground_truth_concepts": ["between 40% and 80%", "Pre-bronchodilator FEV1"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 46,
+        "category": "Clinical Trial Protocol",
+        "question": "How many prior acute exacerbations are needed to meet inclusion criteria?",
+        "ground_truth_concepts": [">= 2 documented acute exacerbations", "systemic corticosteroid bursts", "prior 12 months"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 47,
+        "category": "Clinical Trial Protocol",
+        "question": "What are the exclusion criteria regarding cardiac conditions?",
+        "ground_truth_concepts": ["NYHA Class III or IV", "congestive heart failure", "cardiovascular instability"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 48,
+        "category": "Clinical Trial Protocol",
+        "question": "What is the washout window required for patients who received previous biologics?",
+        "ground_truth_concepts": ["6 months or 5 half-lives", "prior to Day 1 baseline"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 49,
+        "category": "Clinical Trial Protocol",
+        "question": "What is the median T_max to reach peak serum concentration C_max for RX-849?",
+        "ground_truth_concepts": ["median T_max of 72 hours", "C_max", "Peak serum concentration"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 50,
+        "category": "Clinical Trial Protocol",
+        "question": "What is the elimination terminal half-life t_1/2 of RX-849?",
+        "ground_truth_concepts": ["24.3 days", "terminal half-life", "target-mediated"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 51,
+        "category": "Clinical Trial Protocol",
+        "question": "What statistical regression model is specified for analyzing the primary endpoint?",
+        "ground_truth_concepts": ["negative binomial regression", "log-link function", "Annualized Exacerbation Rate"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 52,
+        "category": "Clinical Trial Protocol",
+        "question": "What significance level alpha is set for the primary endpoint hypothesis testing?",
+        "ground_truth_concepts": ["two-sided 0.05", "Alpha level"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 53,
+        "category": "Clinical Trial Protocol",
+        "question": "What improvement threshold in SGRQ score constitutes a clinically meaningful secondary endpoint?",
+        "ground_truth_concepts": [">= 0.5 point improvement", "SGRQ", "quality-of-life score"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 54,
+        "category": "Clinical Trial Protocol",
+        "question": "How quickly must Serious Adverse Events (SAEs) be reported?",
+        "ground_truth_concepts": ["within 24 hours", "site discovery", "sponsor and regulatory"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 55,
+        "category": "Clinical Trial Protocol",
+        "question": "What liver enzyme elevation triggers immediate treatment cessation?",
+        "ground_truth_concepts": ["ALT/AST > 5x Upper Limit of Normal", "bilirubin > 2x ULN", "drug-induced liver injury"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 56,
+        "category": "Clinical Trial Protocol",
+        "question": "What board conducts quarterly unblinded safety reviews?",
+        "ground_truth_concepts": ["Data and Safety Monitoring Board", "DSMB", "quarterly unblinded"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 57,
+        "category": "Clinical Trial Protocol",
+        "question": "What device delivers the study medication in Arm A?",
+        "ground_truth_concepts": ["prefilled autoinjector", "subcutaneously"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 58,
+        "category": "Clinical Trial Protocol",
+        "question": "What randomization ratio and scheme is used between Arm A and Arm B?",
+        "ground_truth_concepts": ["1:1", "stratified block randomization"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 59,
+        "category": "Clinical Trial Protocol",
+        "question": "At which weeks is pre-bronchodilator FEV1 evaluated for secondary efficacy?",
+        "ground_truth_concepts": ["Week 24 and Week 52", "FEV1"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 60,
+        "category": "Clinical Trial Protocol",
+        "question": "What constitutes an automatic discontinuation regarding hypersensitivity?",
+        "ground_truth_concepts": ["Grade 4 anaphylactic reaction", "Immediate treatment cessation"],
+        "expected_document": "clinical_drug_trial_protocol.txt",
+        "is_answerable": True
+    },
+
+    # --- DOMAIN 4: Financial Risk & Basel III (Questions 61 to 80) ---
+    {
+        "id": 61,
+        "category": "Financial Risk & Basel III",
+        "question": "What is the minimum Common Equity Tier 1 (CET1) capital ratio required under Basel III?",
+        "ground_truth_concepts": ["Minimum 4.5%", "Risk-Weighted Assets", "CET1"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 62,
+        "category": "Financial Risk & Basel III",
+        "question": "What is the required Total Capital ratio (Tier 1 + Tier 2) under Basel III?",
+        "ground_truth_concepts": ["Minimum 8.0%", "RWA", "Total Capital"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 63,
+        "category": "Financial Risk & Basel III",
+        "question": "What is the percentage size of the Capital Conservation Buffer (CCB)?",
+        "ground_truth_concepts": ["additional 2.5% CET1", "effective CET1 target to 7.0%"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 64,
+        "category": "Financial Risk & Basel III",
+        "question": "What penalties occur when a bank breaches the Capital Conservation Buffer?",
+        "ground_truth_concepts": ["restricts discretionary bonus", "share buybacks"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 65,
+        "category": "Financial Risk & Basel III",
+        "question": "What is the operational range of the Countercyclical Capital Buffer (CCyB)?",
+        "ground_truth_concepts": ["0% to 2.5%", "excessive credit growth", "cyclical downturns"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 66,
+        "category": "Financial Risk & Basel III",
+        "question": "What is the minimum Leverage Ratio for standard banks versus G-SIBs?",
+        "ground_truth_concepts": [">= 3.0%", "5.0% for Global Systemically Important Banks", "G-SIBs"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 67,
+        "category": "Financial Risk & Basel III",
+        "question": "What stress timeframe is modeled by the Liquidity Coverage Ratio (LCR)?",
+        "ground_truth_concepts": ["30-day acute liquidity stress scenario", "LCR >= 100%"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 68,
+        "category": "Financial Risk & Basel III",
+        "question": "What is the formula for the Liquidity Coverage Ratio (LCR)?",
+        "ground_truth_concepts": ["Total Stock of HQLA", "Total Net Cash Outflows over 30 Days", ">= 100%"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 69,
+        "category": "Financial Risk & Basel III",
+        "question": "What assets qualify as Level 1 High-Quality Liquid Assets (HQLA)?",
+        "ground_truth_concepts": ["cash", "central bank reserves", "sovereign bonds", "0% haircut"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 70,
+        "category": "Financial Risk & Basel III",
+        "question": "What time horizon is covered by the Net Stable Funding Ratio (NSFR)?",
+        "ground_truth_concepts": ["extended 1-year time horizon", "Available Stable Funding", "Required Stable Funding"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 71,
+        "category": "Financial Risk & Basel III",
+        "question": "What confidence level and holding period are mandated for Value at Risk (VaR)?",
+        "ground_truth_concepts": ["99% confidence level", "10-day holding period", "historical simulation"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 72,
+        "category": "Financial Risk & Basel III",
+        "question": "What historical event is commonly used to calibrate Stressed VaR (sVaR)?",
+        "ground_truth_concepts": ["2008 Lehman collapse", "continuous 12-month periods", "Stressed VaR"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 73,
+        "category": "Financial Risk & Basel III",
+        "question": "What dollar threshold triggers mandatory Currency Transaction Reporting (CTR)?",
+        "ground_truth_concepts": ["exceeding $10,000 USD", "within 15 calendar days", "CTR"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 74,
+        "category": "Financial Risk & Basel III",
+        "question": "What equity percentage qualifies someone as an Ultimate Beneficial Owner (UBO)?",
+        "ground_truth_concepts": [">= 25% equity interest", "Customer Due Diligence", "UBO"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 75,
+        "category": "Financial Risk & Basel III",
+        "question": "How quickly must Suspicious Activity Reports (SARs) be submitted to FinCEN?",
+        "ground_truth_concepts": ["within 30 days of detection", "FinCEN", "SARs"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 76,
+        "category": "Financial Risk & Basel III",
+        "question": "What is the minimum Tier 1 Capital ratio alone under Basel III?",
+        "ground_truth_concepts": ["Minimum 6.0% of RWA", "Tier 1 Capital"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 77,
+        "category": "Financial Risk & Basel III",
+        "question": "What haircut range applies to Level 2 HQLA assets?",
+        "ground_truth_concepts": ["15% to 50% haircuts", "qualified corporate bonds", "Level 2"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 78,
+        "category": "Financial Risk & Basel III",
+        "question": "What patterns trigger mandatory SAR filings?",
+        "ground_truth_concepts": ["suspicious velocity", "layering", "structuring patterns"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 79,
+        "category": "Financial Risk & Basel III",
+        "question": "What is the minimum trading history days required for calculating VaR?",
+        "ground_truth_concepts": ["at least 250 trading days", "historical simulation"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 80,
+        "category": "Financial Risk & Basel III",
+        "question": "How is the Basel III Leverage Ratio calculated?",
+        "ground_truth_concepts": ["Tier 1 Capital / Total Exposure Measure", ">= 3.0%"],
+        "expected_document": "financial_risk_compliance.txt",
+        "is_answerable": True
+    },
+
+    # --- DOMAIN 5: Zero Trust Cybersecurity (Questions 81 to 90) ---
+    {
+        "id": 81,
+        "category": "Zero Trust Cybersecurity",
+        "question": "What are the core philosophical maxims of Zero Trust Architecture?",
+        "ground_truth_concepts": ["Never Trust, Always Verify", "Assume Breach", "Least Privilege Access"],
+        "expected_document": "cybersecurity_zero_trust.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 82,
+        "category": "Zero Trust Cybersecurity",
+        "question": "What NIST publication standardizes Zero Trust Enterprise Architecture?",
+        "ground_truth_concepts": ["NIST SP 800-207", "Zero Trust Architecture"],
+        "expected_document": "cybersecurity_zero_trust.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 83,
+        "category": "Zero Trust Cybersecurity",
+        "question": "What two sub-components make up the Policy Decision Point (PDP)?",
+        "ground_truth_concepts": ["Policy Engine", "Policy Administrator", "PE", "PA"],
+        "expected_document": "cybersecurity_zero_trust.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 84,
+        "category": "Zero Trust Cybersecurity",
+        "question": "What is the function of the Policy Enforcement Point (PEP)?",
+        "ground_truth_concepts": ["data plane", "intercepts, decrypts, inspects", "permits or denies"],
+        "expected_document": "cybersecurity_zero_trust.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 85,
+        "category": "Zero Trust Cybersecurity",
+        "question": "How frequently are ephemeral mTLS X.509 certificates rotated?",
+        "ground_truth_concepts": ["Mutual TLS", "rotated every 24 hours", "mTLS"],
+        "expected_document": "cybersecurity_zero_trust.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 86,
+        "category": "Zero Trust Cybersecurity",
+        "question": "What authentication technologies are mandated to stop phishing attacks?",
+        "ground_truth_concepts": ["FIDO2/WebAuthn", "hardware tokens", "YubiKey", "passkeys"],
+        "expected_document": "cybersecurity_zero_trust.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 87,
+        "category": "Zero Trust Cybersecurity",
+        "question": "How does microsegmentation prevent lateral adversary movement?",
+        "ground_truth_concepts": ["denying all default east-west traffic", "micro-perimeters", "explicitly authorized"],
+        "expected_document": "cybersecurity_zero_trust.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 88,
+        "category": "Zero Trust Cybersecurity",
+        "question": "What is the maximum allowed SOAR automated incident response time for ransomware?",
+        "ground_truth_concepts": ["within 45 seconds", "isolate compromised endpoints", "revoke active OAuth"],
+        "expected_document": "cybersecurity_zero_trust.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 89,
+        "category": "Zero Trust Cybersecurity",
+        "question": "What inactivity timeout triggers session token expiration?",
+        "ground_truth_concepts": ["expire after 8 hours of inactivity", "continuous re-authentication"],
+        "expected_document": "cybersecurity_zero_trust.txt",
+        "is_answerable": True
+    },
+    {
+        "id": 90,
+        "category": "Zero Trust Cybersecurity",
+        "question": "What overlay technologies implement granular software-defined microsegments?",
+        "ground_truth_concepts": ["WireGuard", "Cilium eBPF", "AWS Security Groups"],
+        "expected_document": "cybersecurity_zero_trust.txt",
+        "is_answerable": True
+    },
+
+    # --- DOMAIN 6: Out-of-Scope Refusal Guardrail Test Set (Questions 91 to 100) ---
+    {
+        "id": 91,
+        "category": "Refusal Guardrail (Out of Scope)",
+        "question": "What is the recipe for baking traditional sourdough bread?",
+        "ground_truth_concepts": [],
+        "expected_document": None,
+        "is_answerable": False
+    },
+    {
+        "id": 92,
+        "category": "Refusal Guardrail (Out of Scope)",
+        "question": "Who won the FIFA World Cup football tournament in 1998?",
+        "ground_truth_concepts": [],
+        "expected_document": None,
+        "is_answerable": False
+    },
+    {
+        "id": 93,
+        "category": "Refusal Guardrail (Out of Scope)",
+        "question": "What are the rules and pieces used in chess opening moves?",
+        "ground_truth_concepts": [],
+        "expected_document": None,
+        "is_answerable": False
+    },
+    {
+        "id": 94,
+        "category": "Refusal Guardrail (Out of Scope)",
+        "question": "How do you service the transmission fluid in a 2012 Honda Civic?",
+        "ground_truth_concepts": [],
+        "expected_document": None,
+        "is_answerable": False
+    },
+    {
+        "id": 95,
+        "category": "Refusal Guardrail (Out of Scope)",
+        "question": "What is the orbital period of the planet Saturn around the sun?",
+        "ground_truth_concepts": [],
+        "expected_document": None,
+        "is_answerable": False
+    },
+    {
+        "id": 96,
+        "category": "Refusal Guardrail (Out of Scope)",
+        "question": "What chords are used in Beethoven's Moonlight Sonata third movement?",
+        "ground_truth_concepts": [],
+        "expected_document": None,
+        "is_answerable": False
+    },
+    {
+        "id": 97,
+        "category": "Refusal Guardrail (Out of Scope)",
+        "question": "What are the main ingredients of Italian marinara pasta sauce?",
+        "ground_truth_concepts": [],
+        "expected_document": None,
+        "is_answerable": False
+    },
+    {
+        "id": 98,
+        "category": "Refusal Guardrail (Out of Scope)",
+        "question": "How do you train a pet parrot to mimic human speech words?",
+        "ground_truth_concepts": [],
+        "expected_document": None,
+        "is_answerable": False
+    },
+    {
+        "id": 99,
+        "category": "Refusal Guardrail (Out of Scope)",
+        "question": "What are the dimensions and regulation height of an Olympic swimming pool?",
+        "ground_truth_concepts": [],
+        "expected_document": None,
+        "is_answerable": False
+    },
+    {
+        "id": 100,
+        "category": "Refusal Guardrail (Out of Scope)",
+        "question": "What were the diplomatic treaties signed during the Congress of Vienna in 1815?",
+        "ground_truth_concepts": [],
+        "expected_document": None,
+        "is_answerable": False
+    }
+]
+
+
+def generate_dataset():
+    DATASET_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(DATASET_FILE, "w", encoding="utf-8") as f:
+        json.dump(TEST_QUESTIONS, f, indent=2)
+    print(f"Generated {len(TEST_QUESTIONS)} benchmark questions at {DATASET_FILE}")
+
+
+if __name__ == "__main__":
+    generate_dataset()
