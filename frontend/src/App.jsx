@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import ChatInterface from './components/ChatInterface';
 import DocumentManager from './components/DocumentManager';
 import EvaluationDashboard from './components/EvaluationDashboard';
 import ArchitectureView from './components/ArchitectureView';
 import SourceViewerModal from './components/SourceViewerModal';
+import BackendConnectModal from './components/BackendConnectModal';
+import { checkBackendHealth } from './services/api';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('chat');
   const [selectedCitation, setSelectedCitation] = useState(null);
+  const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+  const [backendStatus, setBackendStatus] = useState(null);
+
+  const refreshStatus = () => {
+    checkBackendHealth().then((status) => setBackendStatus(status));
+  };
+
+  useEffect(() => {
+    refreshStatus();
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col font-sans text-slate-100 selection:bg-indigo-500 selection:text-white">
@@ -16,6 +28,8 @@ export default function App() {
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onOpenConnectModal={() => setIsConnectModalOpen(true)}
+        backendStatus={backendStatus}
       />
 
       {/* Main Tab Content */}
@@ -40,6 +54,14 @@ export default function App() {
           onClose={() => setSelectedCitation(null)}
         />
       )}
+
+      {/* Cloud Backend Connect Modal */}
+      <BackendConnectModal
+        isOpen={isConnectModalOpen}
+        onClose={() => setIsConnectModalOpen(false)}
+        onConnectionChanged={refreshStatus}
+        currentStatus={backendStatus}
+      />
     </div>
   );
 }

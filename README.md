@@ -118,11 +118,40 @@ python benchmark/evaluate_100_questions.py
 
 ---
 
+## ☁️ 1-Click Cloud Backend Deployment (Render, Hugging Face, Railway)
+
+The repository includes pre-configured Infrastructure-as-Code files (`render.yaml`, `Dockerfile`, `railway.json`, `Procfile`) for deploying the real **Python FastAPI + LangChain** backend to free cloud hosting:
+
+### 1. Deploy on Render (Recommended)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/murarinaganithin/RAG-Knowledge-Assistant)
+
+1. Click the **Deploy to Render** button above (or navigate to [Render Blueprints](https://dashboard.render.com/select-repo?type=blueprint)).
+2. Select your repository `murarinaganithin/RAG-Knowledge-Assistant`. Render will automatically detect `render.yaml`.
+3. Click **Apply**. Within 2-3 minutes, your live FastAPI API URL will be ready (e.g. `https://rag-knowledge-assistant-api.onrender.com`).
+4. On the frontend site ([Live Site](https://murarinaganithin.github.io/RAG-Knowledge-Assistant/)), click the **"Connect Cloud"** button in the header and paste your Render URL.
+
+---
+
+### 2. Deploy on Hugging Face Spaces (Free 16GB RAM)
+1. Go to [Hugging Face New Space](https://huggingface.co/new-space).
+2. Set Space Name (e.g., `rag-knowledge-assistant-api`), choose **Docker** SDK (Blank).
+3. Connect or push this repository. The included [Dockerfile](./Dockerfile) will build and launch FastAPI on port 7860.
+4. Your public API endpoint will be `https://<your-username>-rag-knowledge-assistant-api.hf.space`.
+
+---
+
+### 3. Deploy on Railway
+1. Go to [Railway Dashboard](https://railway.app/new).
+2. Choose **Deploy from GitHub repo** and select `RAG-Knowledge-Assistant`.
+3. Railway automatically detects `railway.json` and `Procfile` to start Uvicorn.
+
+---
+
 ## 🌐 Live Deployment
 
 - **GitHub Repository**: [https://github.com/murarinaganithin/RAG-Knowledge-Assistant](https://github.com/murarinaganithin/RAG-Knowledge-Assistant)
-- **Live Deployed Site (Surge)**: [https://rag-knowledge-assistant.surge.sh](https://rag-knowledge-assistant.surge.sh)
-- **Live Deployed Site (GitHub Pages)**: [https://murarinaganithin.github.io/RAG-Knowledge-Assistant/](https://murarinaganithin.github.io/RAG-Knowledge-Assistant/)
+- **Live Frontend (GitHub Pages)**: [https://murarinaganithin.github.io/RAG-Knowledge-Assistant/](https://murarinaganithin.github.io/RAG-Knowledge-Assistant/)
+- **1-Click Render Deploy**: [Deploy on Render](https://render.com/deploy?repo=https://github.com/murarinaganithin/RAG-Knowledge-Assistant)
 
 ---
 

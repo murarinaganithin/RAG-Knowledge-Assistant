@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, BarChart3, Database, MessageSquare, Activity, ShieldCheck, Zap } from 'lucide-react';
+import { BookOpen, BarChart3, Database, MessageSquare, Cloud, Server, Activity } from 'lucide-react';
 
 function GithubIcon({ className = "w-4 h-4" }) {
   return (
@@ -9,13 +9,15 @@ function GithubIcon({ className = "w-4 h-4" }) {
   );
 }
 
-export default function Navbar({ activeTab, setActiveTab }) {
+export default function Navbar({ activeTab, setActiveTab, onOpenConnectModal, backendStatus }) {
   const tabs = [
     { id: 'chat', label: 'Q&A Assistant', icon: MessageSquare },
     { id: 'documents', label: 'Knowledge Base', icon: Database },
     { id: 'benchmark', label: '100-Q Benchmark', icon: BarChart3, badge: '90% / 92%' },
     { id: 'architecture', label: 'Architecture', icon: BookOpen },
   ];
+
+  const isOnline = backendStatus?.online;
 
   return (
     <header className="border-b border-slate-800 bg-slate-950 sticky top-0 z-30 shadow-md">
@@ -51,7 +53,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                     isActive
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
@@ -73,9 +75,24 @@ export default function Navbar({ activeTab, setActiveTab }) {
 
           {/* Right Status Badges & GitHub Link */}
           <div className="flex items-center space-x-2.5 shrink-0">
+            {/* Cloud Backend Pill (Clickable) */}
+            <button
+              onClick={onOpenConnectModal}
+              title="Click to configure Cloud Backend (Render / Hugging Face)"
+              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full border text-[11px] transition-all cursor-pointer ${
+                isOnline
+                  ? 'bg-emerald-950/40 border-emerald-500/30 hover:border-emerald-500/60 text-emerald-300'
+                  : 'bg-slate-900 hover:bg-slate-800 border-slate-800 hover:border-indigo-500/40 text-slate-300'
+              }`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-indigo-400'}`}></span>
+              <Cloud className="w-3 h-3 text-indigo-400" />
+              <span>{isOnline ? 'Cloud API' : 'Connect Cloud'}</span>
+            </button>
+
             <div className="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-[11px]">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-slate-400">Avg Latency:</span>
+              <span className="text-slate-400">Latency:</span>
               <span className="font-semibold text-emerald-400 font-mono">1.4s</span>
             </div>
 
@@ -92,7 +109,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
 
         </div>
 
-        {/* Mobile Sub-Navigation Bar (Horizontal Scrollable Tabs) */}
+        {/* Mobile Sub-Navigation Bar */}
         <div className="flex md:hidden overflow-x-auto py-2 border-t border-slate-900 gap-2 no-scrollbar">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -101,7 +118,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium shrink-0 transition-all ${
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium shrink-0 transition-all cursor-pointer ${
                   isActive
                     ? 'bg-indigo-600 text-white shadow-sm'
                     : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 border border-slate-800'

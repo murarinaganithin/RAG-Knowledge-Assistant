@@ -1,27 +1,45 @@
 import { BENCHMARK_DATA } from '../data/benchmarkDataset';
 
-const API_BASE = '/api';
+// Key for custom user-configured cloud API URL (Render, Railway, Hugging Face)
+const API_URL_KEY = 'rag_cloud_backend_api_url';
+const USER_DOCS_KEY = 'rag_user_uploaded_docs';
 
-// Local storage key for persistent client-side uploads
-const STORAGE_KEY = 'rag_user_uploaded_docs';
+export function getApiBaseUrl() {
+  const custom = localStorage.getItem(API_URL_KEY);
+  if (custom && custom.trim()) {
+    return custom.trim().replace(/\/+$/, '');
+  }
+  if (import.meta.env?.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace(/\/+$/, '');
+  }
+  return '/api';
+}
 
-function getStoredUserDocs() {
+export function setApiBaseUrl(url) {
+  if (!url || !url.trim()) {
+    localStorage.removeItem(API_URL_KEY);
+  } else {
+    localStorage.setItem(API_URL_KEY, url.trim().replace(/\/+$/, ''));
+  }
+}
+
+export function getStoredUserDocs() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(USER_DOCS_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch (e) {
     return [];
   }
 }
 
-function saveStoredUserDocs(docs) {
+export function saveStoredUserDocs(docs) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(docs));
+    localStorage.setItem(USER_DOCS_KEY, JSON.stringify(docs));
   } catch (e) {}
 }
 
 export function clearUserUploadedDocs() {
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(USER_DOCS_KEY);
 }
 
 // In-browser text splitting mimicking LangChain RecursiveCharacterTextSplitter
@@ -73,14 +91,12 @@ async function extractTextFromFile(file) {
     const latinText = new TextDecoder('latin1').decode(bytes);
     let extracted = [];
 
-    // 1. Text inside parentheses (text) Tj
     const tjRegex = /\(([^)]+)\)\s*Tj/g;
     let m;
     while ((m = tjRegex.exec(latinText)) !== null) {
       if (m[1].length > 1) extracted.push(m[1]);
     }
 
-    // 2. Text inside arrays [(text) 20 (more)] TJ
     const tjArrayRegex = /\[([^\]]+)\]\s*TJ/g;
     while ((m = tjArrayRegex.exec(latinText)) !== null) {
       const inner = m[1];
@@ -90,7 +106,6 @@ async function extractTextFromFile(file) {
       }
     }
 
-    // 3. Fallback: extract coherent ASCII word blocks
     if (extracted.length < 5) {
       const rawMatches = latinText.match(/[A-Za-z0-9,.\-_:\s]{4,}/g);
       if (rawMatches) {
@@ -105,18 +120,39 @@ async function extractTextFromFile(file) {
       return extracted.join(' ');
     }
 
-    // Fallback placeholder summary if PDF uses compressed vector glyphs
-    return `Uploaded PDF Document: ${file.name}. Size: ${(file.size / 1024).toFixed(1)} KB. This document contains technical domain specifications ingested into the RAG knowledge store. Key sections include system architectural guidelines, data flow parameters, operational requirements, and evidence references.`;
+    return `Uploaded PDF Document: ${file.name}. Size: ${(file.size / 1024).toFixed(1)} KB. This document contains technical specifications ingested into the RAG knowledge store. Key sections include system architectural guidelines, data flow parameters, operational requirements, and evidence references.`;
   }
 
   return await file.text();
 }
 
-export async function checkBackendHealth() {
+export async function testBackendConnection(urlToTest) {
+  const base = urlToTest ? urlToTest.trim().replace(/\/+$/, '') : getApiBaseUrl();
+  const endpoint = base.endsWith('/api') ? `${base}/status` : `${base}/api/status`;
+  
+  const startTime = Date.now();
   try {
-    const res = await fetch(`${API_BASE}/status`, { signal: AbortSignal.timeout(1500) });
+    const res = await fetch(endpoint, { signal: AbortSignal.timeout(4000) });
+    const latency = Date.now() - startTime;
     if (res.ok) {
-      return { online: true, data: await res.json() };
+      const data = await res.json();
+      return { success: true, latency, data, url: base };
+    }
+    return { success: false, latency, error: `HTTP ${res.status}: ${res.statusText}`, url: base };
+  } catch (err) {
+    return { success: false, latency: Date.now() - startTime, error: err.message, url: base };
+  }
+}
+
+export async function checkBackendHealth() {
+  const base = getApiBaseUrl();
+  const endpoint = base.endsWith('/api') ? `${base}/status` : `${base}/api/status`;
+
+  try {
+    const res = await fetch(endpoint, { signal: AbortSignal.timeout(2000) });
+    if (res.ok) {
+      const data = await res.json();
+      return { online: true, isCloud: base.startsWith('http'), url: base, data };
     }
   } catch (e) {}
 
@@ -125,6 +161,8 @@ export async function checkBackendHealth() {
 
   return {
     online: false,
+    isCloud: false,
+    url: base,
     data: {
       status: 'in_browser_rag',
       system: 'RAG Knowledge Assistant (In-Browser Hybrid RAG)',
@@ -147,9 +185,12 @@ export async function checkBackendHealth() {
 }
 
 export async function fetchDocuments() {
+  const base = getApiBaseUrl();
+  const endpoint = base.endsWith('/api') ? `${base}/documents` : `${base}/api/documents`;
+
   let backendDocs = null;
   try {
-    const res = await fetch(`${API_BASE}/documents`, { signal: AbortSignal.timeout(1500) });
+    const res = await fetch(endpoint, { signal: AbortSignal.timeout(2000) });
     if (res.ok) {
       backendDocs = await res.json();
     }
@@ -186,21 +227,24 @@ export async function fetchDocuments() {
 }
 
 export async function uploadDocument(file) {
-  // 1. Try sending to backend if running
+  const base = getApiBaseUrl();
+  const endpoint = base.endsWith('/api') ? `${base}/documents/upload` : `${base}/api/documents/upload`;
+
+  // 1. Try sending to backend (local or cloud)
   try {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('category', 'User Upload');
-    const res = await fetch(`${API_BASE}/documents/upload`, {
+    const res = await fetch(endpoint, {
       method: 'POST',
       body: formData,
-      signal: AbortSignal.timeout(2500)
+      signal: AbortSignal.timeout(8000)
     });
     if (res.ok) {
       return await res.json();
     }
   } catch (e) {
-    // Backend offline / static web hosting (GitHub Pages) -> seamlessly switch to browser indexing
+    // If backend is unreachable, fall back to in-browser indexing
   }
 
   // 2. Client-side in-browser document parsing & chunking
@@ -236,13 +280,16 @@ export async function deleteDocument(filename) {
 }
 
 export async function queryRAG(question, options = {}) {
-  // 1. Attempt backend query if API is live
+  const base = getApiBaseUrl();
+  const endpoint = base.endsWith('/api') ? `${base}/query` : `${base}/api/query`;
+
+  // 1. Attempt backend query if API is live (local or cloud)
   try {
-    const res = await fetch(`${API_BASE}/query`, {
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question, ...options }),
-      signal: AbortSignal.timeout(4000)
+      signal: AbortSignal.timeout(7000)
     });
     if (res.ok) {
       return await res.json();
